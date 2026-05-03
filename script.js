@@ -48,10 +48,10 @@ questionText = item.explanation;
 correctAnswer = item.case;
 }
 
-return { questionText, correctAnswer, type };
+return { questionText, correctAnswer, type, item };
 }
 
-function generateChoices(correctAnswer, type) {
+function generateChoices(correctAnswer, type, item) {
 const choices = [correctAnswer];
 
 while (choices.length < 4) {
@@ -61,26 +61,32 @@ let wrongAnswer = "";
 
 if (type === "case_to_doctrine") {
   wrongAnswer = randomCase.doctrine;
+
+  if (randomCase.doctrine === item.doctrine) {
+    continue;
+  }
 }
 
 if (type === "doctrine_to_case") {
   wrongAnswer = randomCase.case;
 
-  // skip if this case has the same doctrine as the correct one
-  if (randomCase.doctrine === correctAnswer) {
+  if (randomCase.doctrine === item.doctrine) {
     continue;
   }
 }
 
 if (type === "case_to_explanation") {
   wrongAnswer = randomCase.explanation;
+
+  if (randomCase.explanation === item.explanation) {
+    continue;
+  }
 }
 
 if (type === "explanation_to_case") {
   wrongAnswer = randomCase.case;
 
-  // skip if this case has the same explanation as the correct one
-  if (randomCase.explanation === correctAnswer) {
+  if (randomCase.explanation === item.explanation) {
     continue;
   }
 }
@@ -102,35 +108,34 @@ document.getElementById("question").textContent = q.questionText;
 const answersDiv = document.getElementById("answers");
 answersDiv.innerHTML = "";
 
-const choices = generateChoices(q.correctAnswer, q.type);
+const choices = generateChoices(q.correctAnswer, q.type, q.item);
 
 choices.forEach(choice => {
 const btn = document.createElement("button");
 btn.textContent = choice;
 
 btn.onclick = function() {
-const allButtons = answersDiv.querySelectorAll("button");
+  const allButtons = answersDiv.querySelectorAll("button");
 
-allButtons.forEach(b => {
-b.disabled = true;
+  allButtons.forEach(b => {
+    b.disabled = true;
 
-if (b.textContent === q.correctAnswer.substring(0, 120) + "..." || b.textContent === q.correctAnswer) {
-  b.style.backgroundColor = "green";
-}
+    if (b.textContent === q.correctAnswer) {
+      b.style.backgroundColor = "green";
+    }
+  });
 
-});
-
-if (choice === q.correctAnswer) {
-btn.style.backgroundColor = "green";
-} else {
-btn.style.backgroundColor = "red";
-}
+  if (choice === q.correctAnswer) {
+    btn.style.backgroundColor = "green";
+  } else {
+    btn.style.backgroundColor = "red";
+  }
 };
+
 answersDiv.appendChild(btn);
 answersDiv.appendChild(document.createElement("br"));
 
 });
 }
-
 
 document.getElementById("next").onclick = showQuestion;
